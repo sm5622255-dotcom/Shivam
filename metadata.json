@@ -1,0 +1,6 @@
+{
+  "name": "Rummy Row",
+  "description": "An elegant, strategic rummy card game with individual start privilege, central cascading card rows, multi-card matches, and a detailed final scoring overview.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
