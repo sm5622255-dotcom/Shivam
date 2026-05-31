@@ -77,6 +77,34 @@ class ExampleRobolectricTest {
   }
 
   @Test
+  fun `test 2-player game starts and turn advances correctly`() = runTest {
+    val viewModel = GameViewModel()
+    
+    // Start game with 2 players, User is Dealer
+    viewModel.startNewGame(1, playerCount = 2)
+    
+    val state = viewModel.uiState.value
+    assertEquals(2, state.playerCount)
+    assertEquals(2, state.players.size)
+    assertEquals(1, state.dealerId)
+    assertEquals(1, state.currentPlayerId)
+    assertEquals(GamePhase.COLD_START_DISCARD, state.phase)
+    
+    // Dealer has 7, other has 6
+    assertEquals(7, state.userPlayer.hand.size)
+    assertEquals(6, state.aiLeftPlayer.hand.size)
+    
+    // Make cold start discard
+    val discard = state.userPlayer.hand.first()
+    viewModel.coldStartDiscard(discard)
+    
+    // Turn should advance to AI Left (id=2) in PLAYER_TURN_DECIDING phase
+    val afterDiscard = viewModel.uiState.value
+    assertEquals(2, afterDiscard.currentPlayerId)
+    assertEquals(GamePhase.PLAYER_TURN_DECIDING, afterDiscard.phase)
+  }
+
+  @Test
   fun `test game starts with AI Dealer`() = runTest {
     val viewModel = GameViewModel()
     
@@ -101,6 +129,27 @@ class ExampleRobolectricTest {
     if (state.currentPlayerId == 1) {
       assertEquals(GamePhase.PLAYER_TURN_DECIDING, state.phase)
     }
+  }
+
+  @Test
+  fun `test 4-player game starts and dealer privilege is correct`() = runTest {
+    val viewModel = GameViewModel()
+
+    // Start game with 4 players, Meena.S (id=4) is Dealer
+    viewModel.startNewGame(4, playerCount = 4)
+
+    val state = viewModel.uiState.value
+    assertEquals(4, state.playerCount)
+    assertEquals(4, state.players.size)
+    assertEquals(4, state.dealerId)
+    assertEquals(4, state.currentPlayerId)
+    assertEquals(GamePhase.COLD_START_DISCARD, state.phase)
+
+    // Meena.S has 7 cards (Dealer's Privilege), others have 6
+    assertEquals(6, state.userPlayer.hand.size)
+    assertEquals(6, state.aiLeftPlayer.hand.size)
+    assertEquals(6, state.aiRightPlayer.hand.size)
+    assertEquals(7, state.aiTopPlayer.hand.size)
   }
 }
 
